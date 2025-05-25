@@ -14,13 +14,34 @@ const Feedback = async ({ params }: RouteParams) => {
   const { id } = await params;
   const user = await getCurrentUser();
 
+  if (!user) redirect("/"); // Prevents errors if user is not found
+
   const interview = await getInterviewById(id);
   if (!interview) redirect("/");
 
   const feedback = await getFeedbackByInterviewId({
     interviewId: id,
-    userId: user?.id!,
+    userId: user.id,
   });
+
+  if (!feedback) {
+    return (
+      <section className="section-feedback">
+        <h1 className="text-2xl font-semibold text-center">
+          No feedback found for this interview.
+        </h1>
+        <div className="buttons">
+          <Button className="btn-secondary flex-1">
+            <Link href="/" className="flex w-full justify-center">
+              <p className="text-sm font-semibold text-primary-200 text-center">
+                Back to dashboard
+              </p>
+            </Link>
+          </Button>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="section-feedback">
